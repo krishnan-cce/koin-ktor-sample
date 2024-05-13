@@ -16,7 +16,7 @@ class CommonRepositoryImpl(
     override suspend fun getLocationMaster(): RequestState<LocationMaster>{
         return try {
             requestHandler.get(
-                urlPathSegments = listOf("api", "location_master")
+                urlPathSegments = UrlBuilder().buildLocationMasterUrl()
             )
         } catch (e: Exception) {
             RequestState.Error("Unable to fetch location data. Please try again later.")
@@ -26,7 +26,7 @@ class CommonRepositoryImpl(
     override suspend fun getUserData(): RequestState<UserApiModel> {
         return try {
             requestHandler.get(
-                urlPathSegments = listOf("api", "user"),
+                urlPathSegments = UrlBuilder().buildUserDataUrl(),
                 queryParams = mapOf("userId" to 1)
             )
         } catch (e: Exception) {
