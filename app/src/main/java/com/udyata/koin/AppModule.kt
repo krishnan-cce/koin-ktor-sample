@@ -5,8 +5,7 @@ import io.ktor.http.URLProtocol
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
-val appModule = module {
-
+val networkModule = module {
     single {
         HttpClientBuilder()
             .protocol(URLProtocol.HTTPS)
@@ -14,12 +13,17 @@ val appModule = module {
             .build()
     }
 
-
-    single { RequestHandler(get()) }
-    single<CommonRepository> { CommonRepositoryImpl(get()) }
+    single { RequestHandler(httpClient = get()) }
+}
+val repositoryModule = module {
+    single<CommonRepository> { CommonRepositoryImpl(requestHandler = get()) }
+}
+val useCaseModule = module {
     single { LocationMapper() }
     single { UserMapper() }
-    single { LocationUseCase(get(), get()) }
-    single { UserDetailUseCase(get(), get()) }
-    viewModel { MainViewModel(get(),get()) }
+    single { LocationUseCase(repository = get(), mapper = get()) }
+    single { UserDetailUseCase(repository = get(), mapper = get()) }
+}
+val viewModelModule = module {
+    viewModel { MainViewModel(locationUseCase = get(), userDetailUseCase = get()) }
 }

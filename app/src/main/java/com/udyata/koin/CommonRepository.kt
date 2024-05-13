@@ -19,7 +19,7 @@ class CommonRepositoryImpl(
                 urlPathSegments = listOf("api", "location_master")
             )
         } catch (e: Exception) {
-            RequestState.Error("Unable to fetch user data. Please try again later.")
+            RequestState.Error("Unable to fetch location data. Please try again later.")
         }
     }
 
