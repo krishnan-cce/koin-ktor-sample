@@ -16,10 +16,10 @@ class MainViewModel (
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
-    private val _locationUiState = MutableStateFlow<RequestState<LocationResponse>>(RequestState.Loading)
+    private val _locationUiState = MutableStateFlow<RequestState<LocationResponse>>(RequestState.Idle)
     val locationUiState: StateFlow<RequestState<LocationResponse>> = _locationUiState.asStateFlow()
 
-    private val _userState = MutableStateFlow<RequestState<UserModel>>(RequestState.Loading)
+    private val _userState = MutableStateFlow<RequestState<UserModel>>(RequestState.Idle)
     val userState: StateFlow<RequestState<UserModel>> = _userState.asStateFlow()
 
     init {
