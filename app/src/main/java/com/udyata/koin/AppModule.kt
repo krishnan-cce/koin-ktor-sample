@@ -1,8 +1,9 @@
 package com.udyata.koin
 
+import com.udyata.koin.UserDetails.UserDetailUseCase
 import io.ktor.http.URLProtocol
-import org.koin.dsl.module
 import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.dsl.module
 
 val appModule = module {
 
@@ -17,6 +18,8 @@ val appModule = module {
     single { RequestHandler(get()) }
     single<CommonRepository> { CommonRepositoryImpl(get()) }
     single { LocationMapper() }
+    single { UserMapper() }
     single { LocationUseCase(get(), get()) }
-    viewModel { MainViewModel(get()) }
+    single { UserDetailUseCase(get(), get()) }
+    viewModel { MainViewModel(get(),get()) }
 }

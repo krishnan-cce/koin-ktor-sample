@@ -1,47 +1,42 @@
 package com.udyata.koin
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.udyata.koin.UserDetails.UserDetailUseCase
+import com.udyata.koin.UserDetails.UserModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class MainViewModel (
-    private val locationUseCase: LocationUseCase
+    private val locationUseCase: LocationUseCase,
+    private val userDetailUseCase:UserDetailUseCase
 ) : ViewModel() {
 
-    private val _locationData = MutableStateFlow<Resource<LocationResponse>?>(null)
-    val locationData: StateFlow<Resource<LocationResponse>?> = _locationData.asStateFlow()
+    private val _locationUiState = MutableStateFlow<RequestState<LocationResponse>>(RequestState.Loading)
+    val locationUiState: StateFlow<RequestState<LocationResponse>> = _locationUiState.asStateFlow()
 
-    private val _uiState = MutableStateFlow<LocationUiState>(LocationUiState.Loading)
-    val uiState: StateFlow<LocationUiState> = _uiState
-
+    private val _userState = MutableStateFlow<RequestState<UserModel>>(RequestState.Loading)
+    val userState: StateFlow<RequestState<UserModel>> = _userState.asStateFlow()
 
     init {
         getLocations()
+        getUser()
     }
 
-    private fun fetchLocationData() {
-        viewModelScope.launch {
-            _locationData.value = locationUseCase.invoke()
-        }
+    private fun getUser() = viewModelScope.launch {
+        _userState.value = RequestState.Loading
+        _userState.value = userDetailUseCase.invoke()
     }
+
 
     private fun getLocations() = viewModelScope.launch {
-        when (val data = locationUseCase.invoke()) {
-            is Resource.Error -> _uiState.value = LocationUiState.Error
-            is Resource.Success -> _uiState.value = LocationUiState.Location(data.result)
-        }
+        _locationUiState.value = RequestState.Loading
+        _locationUiState.value = locationUseCase.invoke()
     }
 
 
+
 }
 
-
-sealed class LocationUiState {
-    data object Loading : LocationUiState()
-    data object Error : LocationUiState()
-    data class Location(val data: LocationResponse) : LocationUiState()
-}

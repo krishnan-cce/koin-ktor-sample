@@ -42,6 +42,7 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                             .padding(innerPadding)
                     ) {
+                        UserScreen()
                         LocationsScreenV2()
                     }
                 }
@@ -54,21 +55,40 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun LocationsScreenV2(viewModel: MainViewModel= koinViewModel()) {
-    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
-    when (val state = uiState.value) {
-        LocationUiState.Error -> {
-        }
+    val uiState by viewModel.locationUiState.collectAsStateWithLifecycle()
 
-        LocationUiState.Loading -> {
-            CircularProgressIndicator()
-        }
-
-        is LocationUiState.Location -> {
-            LazyColumn {
-                items(state.data.data ?: listOf()) { location ->
-                    Text(text = location.locationName ?: "Unknown Location")
-                }
+    if (uiState.isLoading()) {
+        CircularProgressIndicator()
+    } else if (uiState.isSuccess()) {
+        val data = uiState.getSuccessData()
+        LazyColumn {
+            items(data.data ?: listOf()) { location ->
+                Text(text = location.locationName ?: "Unknown Location")
             }
         }
+    } else if (uiState.isError()) {
+        Text(text = uiState.getErrorMessage() ?: "An error occurred")
+    }
+
+}
+
+
+@Composable
+fun UserScreen(viewModel: MainViewModel = koinViewModel()) {
+    val uiState by viewModel.userState.collectAsStateWithLifecycle()
+
+    if (uiState.isLoading()) {
+        CircularProgressIndicator()
+    } else if (uiState.isSuccess()) {
+        val userData = uiState.getSuccessData()
+        LazyColumn {
+            item {
+                Text(text = userData.data?.username ?: "No Username")
+                Text(text = userData.data?.name ?: "No Name")
+                Text(text = userData.data?.email ?: "No Email")
+            }
+        }
+    } else if (uiState.isError()) {
+        Text(text = uiState.getErrorMessage() ?: "An error occurred")
     }
 }

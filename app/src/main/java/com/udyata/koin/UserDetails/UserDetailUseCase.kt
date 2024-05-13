@@ -1,12 +1,17 @@
-package com.udyata.koin
+package com.udyata.koin.UserDetails
 
-class LocationUseCase(
+import com.udyata.koin.CommonRepository
+import com.udyata.koin.RequestState
+import com.udyata.koin.UserMapper
+
+
+class UserDetailUseCase(
     private val repository: CommonRepository,
-    private val mapper: LocationMapper
+    private val mapper: UserMapper
 ) {
 
-    suspend fun invoke(): RequestState<LocationResponse> {
-        return when (val result = repository.getLocationMaster()) {
+    suspend fun invoke(): RequestState<UserModel> {
+        return when (val result = repository.getUserData()) {
             is RequestState.Error -> {
                 RequestState.Error(result.message)
             }
@@ -17,7 +22,4 @@ class LocationUseCase(
             else -> RequestState.Error("Unexpected state")
         }
     }
-
 }
-
-
