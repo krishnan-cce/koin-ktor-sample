@@ -25,9 +25,7 @@ class HttpClientBuilder {
     private var port: Int? = null
 
     fun protocol(protocol: URLProtocol) = apply { this.protocol = protocol }
-
     fun host(host: String) = apply { this.host = host }
-
     fun port(port: Int) = apply { this.port = port }
 
     fun build(): HttpClient {

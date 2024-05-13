@@ -1,5 +1,6 @@
 package com.udyata.koin
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.udyata.koin.UserDetails.UserDetailUseCase
@@ -11,7 +12,8 @@ import kotlinx.coroutines.launch
 
 class MainViewModel (
     private val locationUseCase: LocationUseCase,
-    private val userDetailUseCase:UserDetailUseCase
+    private val userDetailUseCase:UserDetailUseCase,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
 
     private val _locationUiState = MutableStateFlow<RequestState<LocationResponse>>(RequestState.Loading)
@@ -21,6 +23,7 @@ class MainViewModel (
     val userState: StateFlow<RequestState<UserModel>> = _userState.asStateFlow()
 
     init {
+        Log.d("Session Logged In",sessionManager.isLogin.toString())
         getLocations()
         getUser()
     }
