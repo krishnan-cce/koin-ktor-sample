@@ -10,6 +10,7 @@ import com.udyata.koin.auth.GetTokenResponse
 import com.udyata.koin.auth.OnTokenRequest
 import com.udyata.koin.stock.AddStockUseCase
 import com.udyata.koin.stock.GetSaveItemStockResponse
+import com.udyata.koin.stock.OnSaveItemStockRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,10 +43,19 @@ class MainViewModel (
         getUser()
     }
     fun onAddStock() = viewModelScope.launch {
-        executeWithStateFlow(_addStockUiState) { addStockUseCase.invoke() }
+        val onSaveItemStockRequest =  OnSaveItemStockRequest(
+            addedBy = 1,
+            physicalQuantity = 1.0,
+            itemId = 30,
+            locationId = 10
+        )
+        executeWithStateFlow(_addStockUiState) { addStockUseCase.invoke(onSaveItemStockRequest) }
     }
-    fun onLogin(onRequest:OnTokenRequest) = viewModelScope.launch {
-        executeWithStateFlow(_authUiState) { authUseCase.invoke(onRequest) }
+    fun onLogin(onRequest: OnTokenRequest) = viewModelScope.launch {
+        val result = executeWithStateFlow(_authUiState) { authUseCase.invoke(onRequest) }
+        if (result is RequestState.Success) {
+            sessionManager.jwtToken = result.data.accessToken.toString()
+        }
     }
     fun getUser() = viewModelScope.launch {
         executeWithStateFlow(_userState) { userDetailUseCase.invoke() }

@@ -15,6 +15,7 @@ class Application : Application() {
             androidLogger(Level.ERROR)
             androidContext(this@Application)
             modules(listOf(appModule,networkModule, repositoryModule, useCaseModule, viewModelModule))
+
         }
     }
 }

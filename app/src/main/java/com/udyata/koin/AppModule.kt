@@ -13,11 +13,11 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
-val appModule = module {
+internal val appModule = module {
     single { SessionManager(androidContext()) }
 }
 
-val networkModule = module {
+internal val networkModule = module {
     single {
         HttpClientBuilder(tokenProvider = { get<SessionManager>().jwtToken })
             .protocol(URLProtocol.HTTPS)
@@ -27,18 +27,19 @@ val networkModule = module {
 
     single { RequestHandler(httpClient = get()) }
 }
-val repositoryModule = module {
+internal val repositoryModule = module {
     single<CommonRepository> { CommonRepositoryImpl(requestHandler = get()) }
 }
-val useCaseModule = module {
+internal val useCaseModule = module {
     single { LocationMapper() }
     single { UserMapper() }
     single { LocationUseCase(repository = get(), mapper = get()) }
     single { UserDetailUseCase(repository = get(), mapper = get()) }
-    single { AuthUseCase(repository = get(),sessionManager = get()) }
+    single { AuthUseCase(repository = get()) }
     single { AddStockUseCase(repository = get()) }
 }
-val viewModelModule = module {
+internal val viewModelModule = module {
     viewModel {
-        MainViewModel(locationUseCase = get(), userDetailUseCase = get(),sessionManager = get(),authUseCase = get(), addStockUseCase = get()) }
+        MainViewModel(locationUseCase = get(), userDetailUseCase = get(),sessionManager = get(),authUseCase = get(), addStockUseCase = get())
+    }
 }

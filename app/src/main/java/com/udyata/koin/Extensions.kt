@@ -6,10 +6,24 @@ import kotlinx.coroutines.flow.MutableStateFlow
 suspend fun <T> executeWithStateFlow(
     stateFlow: MutableStateFlow<RequestState<T>>,
     action: suspend () -> RequestState<T>
-) {
+): RequestState<T> {
     stateFlow.value = RequestState.Loading
-    stateFlow.value = action()
+    val result = action()
+    stateFlow.value = result
+    return result
 }
+
+suspend fun <T, R> handleRequest(
+    request: suspend () -> RequestState<T>,
+    transform: (T) -> R
+): RequestState<R> {
+    return when (val result = request()) {
+        is RequestState.Error -> RequestState.Error(result.message)
+        is RequestState.Success -> RequestState.Success(transform(result.data))
+        else -> RequestState.Error("Unexpected state")
+    }
+}
+
 
 fun <R> logRequestState(
     result: RequestState<R>,
