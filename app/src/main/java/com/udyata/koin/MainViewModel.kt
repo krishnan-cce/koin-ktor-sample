@@ -23,6 +23,7 @@ class MainViewModel (
     private val addStockUseCase: AddStockUseCase
 ) : ViewModel() {
 
+
     private val _authUiState = MutableStateFlow<RequestState<GetTokenResponse>>(RequestState.Idle)
     val authUiState: StateFlow<RequestState<GetTokenResponse>> = _authUiState.asStateFlow()
 
@@ -40,24 +41,17 @@ class MainViewModel (
         getLocations()
         getUser()
     }
-    fun onAddStock() = viewModelScope.launch{
-        _addStockUiState.value = RequestState.Loading
-        _addStockUiState.value = addStockUseCase.invoke()
+    fun onAddStock() = viewModelScope.launch {
+        executeWithStateFlow(_addStockUiState) { addStockUseCase.invoke() }
     }
-    fun onLogin(onRequest:OnTokenRequest) = viewModelScope.launch{
-        _authUiState.value = RequestState.Loading
-        _authUiState.value = authUseCase.invoke(onRequest=onRequest)
+    fun onLogin(onRequest:OnTokenRequest) = viewModelScope.launch {
+        executeWithStateFlow(_authUiState) { authUseCase.invoke(onRequest) }
     }
-
-     fun getUser() = viewModelScope.launch {
-        _userState.value = RequestState.Loading
-        _userState.value = userDetailUseCase.invoke()
+    fun getUser() = viewModelScope.launch {
+        executeWithStateFlow(_userState) { userDetailUseCase.invoke() }
     }
-
-
     private fun getLocations() = viewModelScope.launch {
-        _locationUiState.value = RequestState.Loading
-        _locationUiState.value = locationUseCase.invoke()
+        executeWithStateFlow(_locationUiState) { locationUseCase.invoke() }
     }
 
 
