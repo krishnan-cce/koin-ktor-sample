@@ -109,86 +109,102 @@ class RequestHandler(val httpClient: HttpClient) {
         }
     }
 
-
     suspend inline fun <reified R> get(
         urlPathSegments: List<Any>,
-        queryParams: Map<String, Any>? = null,
-    ): RequestState<R> = executeRequest<Any, R>(
-        method = HttpMethod.Get,
-        urlPathSegments = urlPathSegments.toList(),
-        queryParams = queryParams,
-    )
+        queryParams: Map<String, Any>? = null
+    ): RequestState<R> {
+        val result = executeRequest<Any, R>(
+            method = HttpMethod.Get,
+            urlPathSegments = urlPathSegments.toList(),
+            queryParams = queryParams
+        )
+        logRequestState(result, "GET", urlPathSegments)
+        return result
+    }
 
     suspend inline fun <reified B, reified R> post(
         urlPathSegments: List<Any>,
         body: B? = null
     ): RequestState<R> {
-        Log.d("RequestHandler", "Preparing to send POST request to: ${urlPathSegments.joinToString("/")}")
-        body?.let { Log.d("RequestHandler", "With body: $body") }
-
-        return executeRequest<B, R>(
+        val result = executeRequest<B, R>(
             method = HttpMethod.Post,
             urlPathSegments = urlPathSegments.toList(),
             body = body
-        ).also { result ->
-            when (result) {
-                is RequestState.Success -> Log.d("RequestHandler", "POST request successful with response: ${result.data}")
-                is RequestState.Error -> Log.d("RequestHandler", "POST request failed with error: ${result.message}")
-                RequestState.Idle -> TODO()
-                RequestState.Loading -> TODO()
-            }
-        }
+        )
+        logRequestState(result, "POST", urlPathSegments)
+        return result
     }
-
 
     suspend inline fun <reified B, reified R> put(
         urlPathSegments: List<Any>,
-        body: B? = null,
-    ): RequestState<R> = executeRequest(
-        method = HttpMethod.Put,
-        urlPathSegments = urlPathSegments.toList(),
-        body = body,
-    )
+        body: B? = null
+    ): RequestState<R> {
+        val result = executeRequest<B, R>(
+            method = HttpMethod.Put,
+            urlPathSegments = urlPathSegments.toList(),
+            body = body
+        )
+        logRequestState(result, "PUT", urlPathSegments)
+        return result
+    }
 
     suspend inline fun <reified B, reified R> delete(
         urlPathSegments: List<Any>,
-        body: B? = null,
-    ): RequestState<R> = executeRequest(
-        method = HttpMethod.Delete,
-        urlPathSegments = urlPathSegments.toList(),
-        body = body,
-    )
+        body: B? = null
+    ): RequestState<R> {
+        val result = executeRequest<B, R>(
+            method = HttpMethod.Delete,
+            urlPathSegments = urlPathSegments.toList(),
+            body = body
+        )
+        logRequestState(result, "DELETE", urlPathSegments)
+        return result
+    }
+
     suspend inline fun <reified B, reified R> patch(
         urlPathSegments: List<Any>,
         body: B? = null,
         queryParams: Map<String, Any>? = null
-    ): RequestState<R> = executeRequest<B, R>(
-        method = HttpMethod.Patch,
-        urlPathSegments = urlPathSegments.toList(),
-        body = body,
-        queryParams = queryParams
-    )
+    ): RequestState<R> {
+        val result = executeRequest<B, R>(
+            method = HttpMethod.Patch,
+            urlPathSegments = urlPathSegments.toList(),
+            body = body,
+            queryParams = queryParams
+        )
+        logRequestState(result, "PATCH", urlPathSegments)
+        return result
+    }
 
 
     suspend inline fun <reified R> postFormUrlEncoded(
         urlPathSegments: List<Any>,
         formParameters: Map<String, Any>
-    ): RequestState<R> = executeRequest<Map<String, Any>, R>(
-        method = HttpMethod.Post,
-        urlPathSegments = urlPathSegments,
-        body = formParameters,
-        contentType = ContentType.Application.FormUrlEncoded
-    )
+    ): RequestState<R> {
+        val result = executeRequest<Map<String, Any>, R>(
+            method = HttpMethod.Post,
+            urlPathSegments = urlPathSegments,
+            body = formParameters,
+            contentType = ContentType.Application.FormUrlEncoded
+        )
+        logRequestState(result, "POST FormUrlEncoded", urlPathSegments)
+        return result
+    }
 
     suspend inline fun <reified R> postMultipart(
         urlPathSegments: List<Any>,
         formDataParts: List<PartData>
-    ): RequestState<R> = executeRequest<List<PartData>, R>(
-        method = HttpMethod.Post,
-        urlPathSegments = urlPathSegments,
-        body = formDataParts,
-        contentType = ContentType.MultiPart.FormData
-    )
+    ): RequestState<R> {
+        val result = executeRequest<List<PartData>, R>(
+            method = HttpMethod.Post,
+            urlPathSegments = urlPathSegments,
+            body = formDataParts,
+            contentType = ContentType.MultiPart.FormData
+        )
+        logRequestState(result, "POST Multipart", urlPathSegments)
+        return result
+    }
+
 }
 
 
