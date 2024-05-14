@@ -50,7 +50,7 @@ class HttpClientBuilder(private val tokenProvider: () -> String) {
                     host = this@HttpClientBuilder.host
                     this@HttpClientBuilder.port?.let { port = it }
                 }
-                header(HttpHeaders.ContentType, "application/json")
+
                 header(HttpHeaders.Authorization, "Bearer ${tokenProvider()?.let { it } ?: ""}")
 
 

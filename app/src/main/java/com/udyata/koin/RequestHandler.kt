@@ -158,6 +158,17 @@ class RequestHandler(val httpClient: HttpClient) {
         urlPathSegments = urlPathSegments.toList(),
         body = body,
     )
+    suspend inline fun <reified B, reified R> patch(
+        urlPathSegments: List<Any>,
+        body: B? = null,
+        queryParams: Map<String, Any>? = null
+    ): RequestState<R> = executeRequest<B, R>(
+        method = HttpMethod.Patch,
+        urlPathSegments = urlPathSegments.toList(),
+        body = body,
+        queryParams = queryParams
+    )
+
 
     suspend inline fun <reified R> postFormUrlEncoded(
         urlPathSegments: List<Any>,
