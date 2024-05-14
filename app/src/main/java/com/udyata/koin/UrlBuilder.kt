@@ -1,11 +1,20 @@
 package com.udyata.koin
 
 class UrlBuilder {
+
+    fun buildLoginUrl():List<String> {
+        return listOf(" ")
+    }
     fun buildLocationMasterUrl(): List<String> {
-        return listOf("api", "location_master")
+        return listOf(" ")
     }
 
     fun buildUserDataUrl(): List<String> {
-        return listOf("api", "user")
+        return listOf(" ")
+    }
+
+    fun buildAddStockUrl():List<String> {
+        return listOf(" ")
+
     }
 }

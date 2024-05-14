@@ -1,5 +1,6 @@
 package com.udyata.koin
 
+import android.util.Log
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.engine.cio.endpoint
@@ -16,9 +17,11 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.URLProtocol
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 
-
-class HttpClientBuilder {
+class HttpClientBuilder(private val tokenProvider: () -> String) {
 
     private var protocol: URLProtocol = URLProtocol.HTTP
     private lateinit var host: String
@@ -48,6 +51,9 @@ class HttpClientBuilder {
                     this@HttpClientBuilder.port?.let { port = it }
                 }
                 header(HttpHeaders.ContentType, "application/json")
+                header(HttpHeaders.Authorization, "Bearer ${tokenProvider()?.let { it } ?: ""}")
+
+
             }
 
             install(ContentNegotiation) {
@@ -60,13 +66,6 @@ class HttpClientBuilder {
                 )
             }
 
-            install(Auth) {
-                bearer {
-                    loadTokens {
-                        BearerTokens("", "")
-                    }
-                }
-            }
 
             install(Logging) {
                 logger = object : Logger {

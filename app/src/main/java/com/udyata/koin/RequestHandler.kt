@@ -121,12 +121,25 @@ class RequestHandler(val httpClient: HttpClient) {
 
     suspend inline fun <reified B, reified R> post(
         urlPathSegments: List<Any>,
-        body: B? = null,
-    ): RequestState<R> = executeRequest(
-        method = HttpMethod.Post,
-        urlPathSegments = urlPathSegments.toList(),
-        body = body,
-    )
+        body: B? = null
+    ): RequestState<R> {
+        Log.d("RequestHandler", "Preparing to send POST request to: ${urlPathSegments.joinToString("/")}")
+        body?.let { Log.d("RequestHandler", "With body: $body") }
+
+        return executeRequest<B, R>(
+            method = HttpMethod.Post,
+            urlPathSegments = urlPathSegments.toList(),
+            body = body
+        ).also { result ->
+            when (result) {
+                is RequestState.Success -> Log.d("RequestHandler", "POST request successful with response: ${result.data}")
+                is RequestState.Error -> Log.d("RequestHandler", "POST request failed with error: ${result.message}")
+                RequestState.Idle -> TODO()
+                RequestState.Loading -> TODO()
+            }
+        }
+    }
+
 
     suspend inline fun <reified B, reified R> put(
         urlPathSegments: List<Any>,

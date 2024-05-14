@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,17 +28,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.udyata.koin.auth.OnTokenRequest
 import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.getViewModel
 import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
 
-//    private val sessionManager: SessionManager by inject()
+    private val sessionManager: SessionManager by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,14 +51,41 @@ class MainActivity : ComponentActivity() {
             ){
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 
+                    val viewModel: MainViewModel= koinViewModel()
+
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
                     ) {
-                        UserScreen()
-                        LocationsScreenV2()
-
+                        UserScreen(viewModel)
+                        LocationsScreenV2(viewModel)
+                        Button(
+                            shape = RectangleShape,
+                            onClick = {
+                                val request = OnTokenRequest(
+                                    usernameOrEmail = "admin",
+                                    password = "123456"
+                                )
+                                viewModel.onLogin(request)
+                            }) {
+                            Text(text = "Login")
+                        }
+                        OutlinedButton(
+                            shape = RectangleShape,
+                            onClick = {
+                            viewModel.getUser()
+                        }) {
+                            Text(text = "Call API")
+                        }
+                        Button(
+                            shape = RectangleShape,
+                            onClick = {
+                                viewModel.onAddStock()
+                            }) {
+                            Text(text = "Add Stock")
+                        }
+                        Text(text = sessionManager.jwtToken)
                     }
                 }
             }
@@ -66,7 +96,7 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun LocationsScreenV2(viewModel: MainViewModel= koinViewModel()) {
+fun LocationsScreenV2(viewModel: MainViewModel) {
     val uiState by viewModel.locationUiState.collectAsStateWithLifecycle()
 
     if (uiState.isLoading()) {
@@ -86,7 +116,7 @@ fun LocationsScreenV2(viewModel: MainViewModel= koinViewModel()) {
 
 
 @Composable
-fun UserScreen(viewModel: MainViewModel = koinViewModel()) {
+fun UserScreen(viewModel: MainViewModel) {
     val uiState by viewModel.userState.collectAsStateWithLifecycle()
 
     if (uiState.isLoading()) {
