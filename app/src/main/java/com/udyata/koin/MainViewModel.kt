@@ -14,6 +14,7 @@ import com.udyata.koin.stock.OnSaveItemStockRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class MainViewModel (
@@ -57,12 +58,15 @@ class MainViewModel (
             sessionManager.jwtToken = result.data.accessToken.toString()
         }
     }
-    fun getUser() = viewModelScope.launch {
-        executeWithStateFlow(_userState) { userDetailUseCase.invoke() }
-    }
-    private fun getLocations() = viewModelScope.launch {
-        executeWithStateFlow(_locationUiState) { locationUseCase.invoke() }
-    }
+    fun getUser() = collectAndSetState(_userState, userDetailUseCase.invoke(), viewModelScope)
+    private fun getLocations() = collectAndSetState(_locationUiState, locationUseCase.invoke(), viewModelScope)
+
+//    fun getUser() = viewModelScope.launch {
+//        userDetailUseCase.invoke().collectLatest { response ->
+//            _userState.value = response
+//        }
+//    }
+
 
 
 

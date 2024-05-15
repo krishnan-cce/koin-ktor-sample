@@ -14,7 +14,7 @@ class UrlBuilder {
     }
 
     fun buildAddStockUrl():List<String> {
-        return listOf(" ")
+        return listOf("")
 
     }
 }

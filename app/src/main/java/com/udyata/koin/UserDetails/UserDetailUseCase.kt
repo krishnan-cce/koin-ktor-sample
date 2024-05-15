@@ -1,9 +1,13 @@
 package com.udyata.koin.UserDetails
 
 import com.udyata.koin.CommonRepository
+import com.udyata.koin.LocationMapper
+import com.udyata.koin.LocationResponse
 import com.udyata.koin.RequestState
 import com.udyata.koin.UserMapper
 import com.udyata.koin.handleRequest
+import com.udyata.koin.requestFlow
+import kotlinx.coroutines.flow.Flow
 
 
 //class UserDetailUseCase(
@@ -29,10 +33,8 @@ class UserDetailUseCase(
     private val repository: CommonRepository,
     private val mapper: UserMapper
 ) {
-    suspend fun invoke(): RequestState<UserModel> {
-        return handleRequest(
-            request = { repository.getUserData() },
-            transform = { mapper.map(it) }
-        )
-    }
+    fun invoke(): Flow<RequestState<UserModel>> = requestFlow(
+        request = { repository.getUserData() },
+        transform = { mapper.map(it) }
+    )
 }
