@@ -21,7 +21,7 @@ internal val networkModule = module {
     single {
         HttpClientBuilder(tokenProvider = { get<SessionManager>().jwtToken })
             .protocol(URLProtocol.HTTPS)
-            .host(" ")
+            .host("stock-sense.onrender.com")
             .build()
     }
 

@@ -6,7 +6,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -95,24 +99,79 @@ class MainActivity : ComponentActivity() {
 
 
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun LocationsScreenV2(viewModel: MainViewModel) {
-    val uiState by viewModel.locationUiState.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
-    if (uiState.isLoading()) {
-        CircularProgressIndicator()
-    } else if (uiState.isSuccess()) {
-        val data = uiState.getSuccessData()
-        LazyColumn {
-            items(data.data ?: listOf()) { location ->
-                Text(text = location.locationName ?: "Unknown Location")
+    Column {
+        TextField(
+            value = state.searchQuery,
+            onValueChange = { query -> viewModel.onEvent(LocationEvent.UpdateSearchQuery(query)) },
+            label = { Text("Search") }
+        )
+
+        FlowRow {
+            Button(onClick = { viewModel.onEvent(LocationEvent.ToggleSortType) }) {
+                Text(if (state.sortType == Sort.ByName) "Remove Sort" else "Sort by Name")
+            }
+            Button(onClick = { viewModel.onEvent(LocationEvent.ToggleSortOrder) }) {
+                Text(if (state.sortOrder == SortOrder.ASCENDING) "Sort Descending" else "Sort Ascending")
+            }
+            Button(onClick = { viewModel.onEvent(LocationEvent.ToggleGroupType) }) {
+                Text(if (state.groupType == Group.ByFirstLetter) "Remove Grouping" else "Group by First Letter")
             }
         }
-    } else if (uiState.isError()) {
-        Text(text = uiState.getErrorMessage() ?: "An error occurred")
-    }
 
+        when (val uiState = state.locationUiState) {
+            is RequestState.Loading -> CircularProgressIndicator()
+            is RequestState.Success -> {
+                val response = uiState.data
+                Log.d("LocationsScreenV2", "Success with data: ${response.data}")
+
+                val filteredData = response.filter(
+                    if (state.searchQuery.isNotEmpty()) Filter.ByQuery(state.searchQuery) else Filter.None
+                )
+                Log.d("LocationsScreenV2", "Filtered data: $filteredData")
+
+                val sortedData = response.sort(filteredData, state.sortType, state.sortOrder)
+                Log.d("LocationsScreenV2", "Sorted data: $sortedData")
+
+                val groupedData = response.group(sortedData, state.groupType)
+                Log.d("LocationsScreenV2", "Grouped data: $groupedData")
+
+                if (state.groupType is Group.ByFirstLetter && groupedData != null) {
+                    LazyColumn {
+                        groupedData.forEach { (letter, locations) ->
+                            item {
+                                Text(text = letter.toString(), style = MaterialTheme.typography.bodyMedium)
+                            }
+                            items(locations) { location ->
+                                Text(text = location.locationName ?: "Unknown Location")
+                            }
+                        }
+                    }
+                } else {
+                    LazyColumn {
+                        items(sortedData ?: listOf()) { location ->
+                            Text(text = location.locationName ?: "Unknown Location")
+                        }
+                    }
+                }
+            }
+            is RequestState.Error -> {
+                Text(text = uiState.message ?: "An error occurred")
+            }
+            is RequestState.Idle -> {}
+        }
+    }
 }
+
+
+
+
+
+
 
 
 @Composable
